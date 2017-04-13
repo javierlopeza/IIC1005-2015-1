@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Foursquare</title>
+        <link rel="stylesheet" type="text/css" href="css_pagina.css">
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ek+Mukta">
+        <meta charset=utf-8 />
+        <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+        <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.css' rel='stylesheet' />
+        <script src='500_random.js'></script>
+    </head>
+    <body>
+        
+        <div id="titulos">
+        <h1 id=Tarea>Foursquare</h1>
+        </div>
+        
+<!-- Menu Tabs -->       
+        <ul id="MenuTabs">
+          <li  id="MenuTabs"><a class="menu" href="tab1.html">Informacion general</a></li>
+          <li  id="MenuTabs"><a class="menu" href="tab2.html" target="_self">Explorar usuarios y amistades </a></li>
+        </ul>    
+<!-- --------- -->  
+        <h5>Total usuarios: 11.326</h5>
+        <h5>Total ubicaciones: 187.219</h5>
+        <h5>Total check-ins: 2.290.997</h5>
+        <h5>Promedio de amigos por usuario: 8,33</h5>
+        <h5>Promedio de check-ins por usuario: 202,28</h5>
+        <h5>Promedio de check-ins por lugar: 12,24</h5>
+        <div id='map'></div>
+        <script>
+        L.mapbox.accessToken = 'pk.eyJ1IjoiamF2aWVybG9wZXphIiwiYSI6IkVEMWJBZDgifQ.SdSK59IlDDoxB-8iWeHzaA';
+        var map = L.mapbox.map('map', 'javierlopeza.lh6mh4mn')
+            .setView([16, 21], 1);
+        for (i=0; i<500; i++) {
+            var lat = random_500[i][0];
+            var long = random_500[i][1];
+            var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+            var popfoto = '<img src='+foto+'>';
+            var marker = L.marker([random_500[i][0], random_500[i][1]]).bindPopup(popfoto).addTo(map);
+         }
+
+        </script>
+
+        
+    </body>
+</html>

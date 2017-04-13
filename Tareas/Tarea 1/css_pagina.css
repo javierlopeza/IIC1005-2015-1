@@ -1,0 +1,225 @@
+body {
+    background-color: rgb(255, 255, 255);
+    font-family: 'Ek Mukta', "Helvetica Neue", Helvetica, Arial;
+    text-align: center;
+    margin-top: 4%;
+}
+
+h1 {
+    
+    font-weight: 100;
+    font-size: 300%;
+    color: white;
+       
+}
+
+#map { 
+    top:0; 
+    bottom:0;
+    height: 400px;
+    width:600px; 
+    position: absolute;
+    right: 350px;
+    top: 340px;
+}
+
+
+select.mm {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 7px;
+    margin-left: 10px;
+}
+
+select.aaaa {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 10px;
+}
+
+
+#MenuTabs {
+    margin-right: auto;
+    margin-left: auto;
+    text-align: center;
+    list-style-type: none;
+    margin: 1px;
+    padding: 0;
+    overflow: hidden;
+    float: center;
+
+}
+
+a.menu:link, a.menu:visited {
+    display: block;
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: #2d82d6;
+    text-align: center;
+    padding: 8px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+a.menu:hover, a.menu:active {
+    background-color: #2668a8;
+}
+
+div.home {
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 35px;
+    font-size: 250%;
+    color: white;
+    background-color: #2d82d6;
+    width: 300px;
+    text-align: center;
+}
+
+a.inicio:link, a.inicio:visited {
+    display: block;
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: #2d82d6;
+    text-align: center;
+    padding: 25px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+a.inicio:hover, a.inicio:active {
+    background-color: #2668a8;
+}
+
+h5 {
+    color: rgb(100,100,100);
+    font-size: 101%;
+    line-height: 0%;
+    text-align: center;
+    position: relative;
+    right: 400px;
+    top: 135px;
+}
+
+button {
+    margin: 20px;
+}
+
+#titulos {
+    margin-right: auto;
+    margin-left: auto;
+    padding-top: 3px;
+    background-color: #0e1152;
+    width: 99.8%;
+    height: 150px;
+    text-align: center;
+
+}
+
+#Tarea {
+    color:white;
+}
+
+#desdehasta {
+    line-height: 0%;
+    position: relative;
+    right: 300px;
+    top:15px;
+}
+
+h4 {
+    color: rgb(100,100,100);
+
+}
+
+#MMi {
+    position: relative;
+    right: 0px;
+    top: 0px;
+}
+
+#AAAAi {
+    position: relative;
+    right: 0px;
+    top: 0px;
+}
+
+#MMf {
+    position: relative;
+    right: 0px;
+    top: 0px;
+}
+
+#AAAAf {
+    position: relative;
+    right: 0px;
+    top: 0px;
+}
+
+#titulofiltrar {
+    position: relative;
+    right: 300px;
+    top: 15px;
+
+}
+
+#filtros {
+    width: 250px;
+    position: relative;
+    right: 300px;
+    top: 15px;
+}
+
+#menulateral {
+    position: relative;
+    right: 300px;
+    top: 18px;
+    margin-top: 10px;
+}
+
+#listausuarios {
+    position: relative;
+    right: 300px;
+    top: 10px;
+}
+
+#map2 {
+    top:0; 
+    bottom:0;
+    height: 400px;
+    width:600px; 
+    position: absolute;
+    right: 0px;
+    top: -330px;
+}
+
+#botonbuscar {
+    position: relative;
+    right: 300px;
+    top: 15px;
+}
+
+#boton {
+    position: relative;
+    right: 400px;
+    top: 135px;
+}
+
+#check {
+    position: relative;
+    right: 300px;
+    top: 18px;
+    margin-top: 10px;
+}
+
+#prueba {
+    color:black;
+}
+
+
+#rutas {
+    position: relative;
+    right: 300px;
+    top: 18px;
+    margin-top: 10px;
+}

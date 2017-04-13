@@ -1,0 +1,556 @@
+<!DOCTYPE html>  
+<html>
+    <head>
+        <title>Foursquare</title>
+        <link rel="stylesheet" type="text/css" href="css_pagina.css"> 
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ek+Mukta">
+        <meta charset=utf-8 />
+        <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+        <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.css' rel='stylesheet' />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    </head>
+    <body>
+        <div id="titulos">
+        <h1 id="Tarea">Foursquare</h1>
+        </div>
+<!-- Menu Tabs -->       
+        <ul id="MenuTabs">
+          <li  id="MenuTabs"><a class="menu" href="tab1.html">Informacion general</a></li>
+          <li  id="MenuTabs"><a class="menu" href="tab2.html" target="_self">Explorar usuarios y amistades </a></li>
+        </ul>    
+<!-- --------- --> 
+        <!-- Implementacion del scroll buscador de usuarios -->
+        
+        <script>
+        var scroll_usuarios = document.getElementById("listausuarios");    
+        $(document).ready(function() {
+            $.getJSON("input3.json", function(archivo){
+                for (i=0; i<archivo.usuarios.length; i++) {
+                    var valor = i;
+                    var mostrar = archivo.usuarios[i].id;
+                    $("#listausuarios").append('<option value="'+ valor +'" text=archivo.usuarios[i].id>'+ mostrar +'</option>');
+                }
+                $("#botonbuscar").click(function(){
+                    map2.eachLayer(function(layer) {
+                      if (layer instanceof L.Polyline) {
+                        map2.removeLayer(layer);
+                        }
+                    }); 
+                    var markers = [];
+                    var polyline_options = {
+                        color: '#1c50ff',
+                        opacity: .7,
+                        weight: 1.5
+                    };
+                    map2.eachLayer(function(layer) {
+                      if (layer instanceof L.Marker) {
+                        map2.removeLayer(layer);
+                      }
+                    });
+                    var polyline = L.polyline([]).addTo(map2);
+                    if (document.getElementById("check").checked == false) {
+                        var usuario_seleccionado = document.getElementById("listausuarios").value;
+                        for (i=0; i<archivo.usuarios[usuario_seleccionado].checkins.length; i++) {
+                            var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                            var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                            var coord = [lat, long];
+                            markers.push(coord)
+                            var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10'
+                            var popfoto = '<img src='+foto+'>'
+                            var marker = L.marker([lat, long], {
+                                    icon: L.mapbox.marker.icon({
+                                        'marker-size':'medium',
+                                        'marker-color':'#3e5cff'
+                                    })}).bindPopup(popfoto).addTo(map2);
+                            
+                        }
+                    }
+                    if (document.getElementById("check").checked == true) {
+                        
+                        var usuario_seleccionado = document.getElementById("listausuarios").value;
+                        for (i=0; i<archivo.usuarios[usuario_seleccionado].checkins.length; i++) {
+                            var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                            var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                            var coord = [lat, long];
+                            markers.push(coord)
+                            var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10'
+                            var popfoto = '<img src='+foto+'>'
+                            var marker = L.marker([lat, long], {
+                                    icon: L.mapbox.marker.icon({
+                                        'marker-size':'medium',
+                                        'marker-color':'#3e5cff'
+                                    })}).bindPopup(popfoto).addTo(map2);
+                        }
+                        
+                        for (i=0; i<archivo.usuarios[usuario_seleccionado].amigos.length; i++) {
+                            for (j=0; j<archivo.usuarios[usuario_seleccionado].amigos[i].checkins.length; j++) {
+                                var lat = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].latitude;
+                                var long = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].longitude;
+                                var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10'
+                                var popfoto = '<img src='+foto+'>'
+                                var marker = L.marker([lat, long], {
+                                    icon: L.mapbox.marker.icon({
+                                        'marker-size':'medium',
+                                        'marker-color':'#ff5555'
+                                    })}).bindPopup(popfoto).addTo(map2);
+                            }
+                        }
+                        
+                    };
+                    // No hay necesidad de ordenar los checkins por fecha porque vienen ordenados en el JSON.
+                    if (document.getElementById("rutas").checked == true) {
+                        document.getElementById("botonbuscar").style.visibility = "hidden";
+                        document.getElementById("botonfiltrar").style.visibility = "hidden";
+                        alert("Por favor espere a que se terminen de cargar las rutas para buscar un nuevo usuario. Si desea buscar un nuevo usuario antes de que se termine de cargar, actualice la página. Los botones desapareceran mientras tanto.");
+                        alert("Despues de que se cargue la ruta podra revisarla en detalle.")
+                        var topmarkers = [];
+                        for (i=0; i<(markers.length-1); i++) {
+                            topmarkers.push(markers[i]);
+                            var x1 = markers[i][0];
+                            var x2 = markers[i+1][0];
+                            var y1 = markers[i][1];
+                            var y2 = markers[i+1][1];
+
+                            var dx = (x2-x1)/20;  
+                            var dy = (y2-y1)/20;
+
+                            for (k=1; k<21; k++) {
+                                var npunto = [(x1+(dx*k)),(y1+(dy*k)) ];
+                                topmarkers.push(npunto);
+                                }
+                            if (i==markers.length-2) {topmarkers.push(markers[markers.length-1])
+                            }
+                        }
+                        var totalmarkers = topmarkers.length;
+                        var posmarker = 0;
+                                                                        
+                        add();
+
+                        function add() {
+                            polyline.addLatLng(topmarkers[posmarker]);
+                            map2.setView([topmarkers[posmarker][0],topmarkers[posmarker][1]], 10);
+                            posmarker = posmarker + 1;
+                            if (posmarker<totalmarkers) { window.setTimeout(add, 50); }
+                            else {
+                                document.getElementById("botonbuscar").style.visibility="visible";
+                                document.getElementById("botonfiltrar").style.visibility = "visible";
+                            }
+                        }
+                        
+                    }        
+                    else if (document.getElementById("rutas").checked == false) {
+                        map2.eachLayer(function(layer) {
+                          if (layer instanceof L.Polyline) {
+                            map2.removeLayer(layer);
+                            }
+                        }); 
+                        }
+                }
+                );
+                
+                $("#botonfiltrar").click(function(){
+
+                    map2.eachLayer(function(layer) {
+                      if (layer instanceof L.Marker) {
+                        map2.removeLayer(layer);
+                      }
+                    });
+                    
+                    map2.eachLayer(function(layer) {
+                      if (layer instanceof L.Polyline) {
+                        map2.removeLayer(layer);
+                        }
+                    }); 
+                    
+                    var markers = [];
+                    var polyline_options = {
+                        color: '#1c50ff',
+                        opacity: .7,
+                        weight: 1.5
+                    };
+                    var polyline = L.polyline([]).addTo(map2);
+                    
+                    var mesi = parseInt(document.getElementById("MMi").value);
+                    var aaaai = parseInt(document.getElementById("AAAAi").value);
+                    var mesf = parseInt(document.getElementById("MMf").value);
+                    var aaaaf = parseInt(document.getElementById("AAAAf").value);
+                    var mostrar = "";
+                    if (aaaaf < aaaai) {
+                        mostrar = "Ingrese Fecha Válida.";
+                        alert(mostrar)
+                    }
+                    else if (aaaaf == aaaai && mesi > mesf) {
+                            mostrar = "Ingrese Fecha Valida."
+                            alert(mostrar)
+                        }              
+                    else {
+                        var md = document.getElementById("MMi").value;
+                        var ad = document.getElementById("AAAAi").value;
+                        var mh = document.getElementById("MMf").value;
+                        var ah = document.getElementById("AAAAf").value;
+                        md = parseInt(md)
+                        mh = parseInt(mh)
+                        ad = parseInt(ad)
+                        ah = parseInt(ah)
+                        
+                        if (document.getElementById("check").checked == false) {
+                            var usuario_seleccionado = document.getElementById("listausuarios").value;
+                            for (i=0; i<archivo.usuarios[usuario_seleccionado].checkins.length; i++) {
+                                var t = archivo.usuarios[usuario_seleccionado].checkins[i].time; 
+                                var ax = t.substring(0,4);
+                                var mx = t.substring(5,7);
+                                ax = parseInt(ax);
+                                mx = parseInt(mx);
+                                if (ax==ad && ax==ah) {
+                                    if (mx>=md && mx<=mh) {
+                                        var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                                        var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                                        var coord = [lat, long];
+                                        markers.push(coord);
+                                        var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                        var popfoto = '<img src='+foto+'>';
+                                        var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#3e5cff'
+                                                })}).bindPopup(popfoto).addTo(map2);
+                                    }
+                                }                                 
+                                else if (ax==ad) {
+                                    if (mx>=md) {
+                                        var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                                        var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                                        var coord = [lat, long];
+                                        markers.push(coord);
+                                        var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                        var popfoto = '<img src='+foto+'>';
+                                        var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#3e5cff'
+                                                })}).bindPopup(popfoto).addTo(map2);
+                                    }
+                                }  
+                                else if (ax==ah) {
+                                    if (mx<=mh) {
+                                        var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                                        var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                                        var coord = [lat, long];
+                                        markers.push(coord);
+                                        var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                        var popfoto = '<img src='+foto+'>';
+                                        var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#3e5cff'
+                                                })}).bindPopup(popfoto).addTo(map2);
+                                    }
+                                }
+                                else if (ax<ah && ax>ad) {
+                                        var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                                        var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                                        var coord = [lat, long];
+                                        markers.push(coord);
+                                        var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                        var popfoto = '<img src='+foto+'>';
+                                        var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#3e5cff'
+                                                })}).bindPopup(popfoto).addTo(map2);
+                                }
+                            }
+                        };
+
+                        
+                        
+                        if (document.getElementById("check").checked == true) {
+                            var usuario_seleccionado = document.getElementById("listausuarios").value;
+                            for (i=0; i<archivo.usuarios[usuario_seleccionado].checkins.length; i++) {
+                                var t = archivo.usuarios[usuario_seleccionado].checkins[i].time; 
+                                var ax = t.substring(0,4);
+                                var mx = t.substring(5,7);
+                                ax = parseInt(ax);
+                                mx = parseInt(mx);
+                                if (ax==ad && ax==ah) {
+                                    if (mx>=md && mx<=mh) {
+                                        var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                                        var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                                        var coord = [lat, long];
+                                        markers.push(coord);
+                                        var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                        var popfoto = '<img src='+foto+'>';
+                                        var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#3e5cff'
+                                                })}).bindPopup(popfoto).addTo(map2);
+                                    }
+                                }                                 
+                                else if (ax==ad) {
+                                    if (mx>=md) {
+                                        var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                                        var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                                        var coord = [lat, long];
+                                        markers.push(coord);
+                                        var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                        var popfoto = '<img src='+foto+'>';
+                                        var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#3e5cff'
+                                                })}).bindPopup(popfoto).addTo(map2);
+                                    }
+                                }  
+                                else if (ax==ah) {
+                                    if (mx<=mh) {
+                                        var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                                        var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                                        var coord = [lat, long];
+                                        markers.push(coord);
+                                        var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                        var popfoto = '<img src='+foto+'>';
+                                        var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#3e5cff'
+                                                })}).bindPopup(popfoto).addTo(map2);
+                                    }
+                                }
+                                else if (ax<ah && ax>ad) {
+                                        var lat = archivo.usuarios[usuario_seleccionado].checkins[i].latitude;
+                                        var long = archivo.usuarios[usuario_seleccionado].checkins[i].longitude;
+                                        var coord = [lat, long];
+                                        markers.push(coord);
+                                        var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                        var popfoto = '<img src='+foto+'>';
+                                        var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#3e5cff'
+                                                })}).bindPopup(popfoto).addTo(map2);
+                                }
+                            }
+                            
+                            for (i=0; i<archivo.usuarios[usuario_seleccionado].amigos.length; i++) {
+                                for (j=0; j<archivo.usuarios[usuario_seleccionado].amigos[i].checkins.length; j++) {
+                                    var t = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].time;
+                                    var ax = t.substring(0,4);
+                                    var mx = t.substring(5,7);                                  
+                                    ax = parseInt(ax);
+                                    mx = parseInt(mx);
+                                    if (ax==ad && ax==ah) {
+                                        if (mx>=md && mx<=mh) {
+                                            var lat = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].latitude;
+                                            var long = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].longitude;
+                                            var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                            var popfoto = '<img src='+foto+'>';
+                                            var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#ff5555'
+                                                })}).bindPopup(popfoto).addTo(map2);                                           
+                                        }
+                                        }
+                                    else if (ax==ad) {
+                                        if (mx>=md) {
+                                            var lat = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].latitude;
+                                            var long = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].longitude;
+                                            var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                            var popfoto = '<img src='+foto+'>';
+                                            var marker = L.marker([lat, long], {
+                                                    icon: L.mapbox.marker.icon({
+                                                        'marker-size':'medium',
+                                                        'marker-color':'#ff5555'
+                                                    })}).bindPopup(popfoto).addTo(map2);                                           
+                                        }
+                                        }
+                                    else if (ax==ah) {
+                                        if (mx<=mh) {
+                                            var lat = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].latitude;
+                                            var long = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].longitude;
+                                            var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                            var popfoto = '<img src='+foto+'>';
+                                            var marker = L.marker([lat, long], {
+                                                    icon: L.mapbox.marker.icon({
+                                                        'marker-size':'medium',
+                                                        'marker-color':'#ff5555'
+                                                    })}).bindPopup(popfoto).addTo(map2);                                        
+                                        }
+                                        }
+                                    else if (ax<ah && ax>ad) {
+                                            var lat = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].latitude;
+                                            var long = archivo.usuarios[usuario_seleccionado].amigos[i].checkins[j].longitude;
+                                            var foto = 'https://maps.googleapis.com/maps/api/streetview?size=250x200&location='+lat+','+long+'&fov=90&heading=275&pitch=10';
+                                            var popfoto = '<img src='+foto+'>';
+                                            var marker = L.marker([lat, long], {
+                                                icon: L.mapbox.marker.icon({
+                                                    'marker-size':'medium',
+                                                    'marker-color':'#ff5555'
+                                                })}).bindPopup(popfoto).addTo(map2);
+                                    }
+                                }
+
+                            };
+                        }
+                    }
+                    // No hay necesidad de ordenar los checkins por fecha porque vienen ordenados en el JSON.
+                    if (document.getElementById("rutas").checked == true) {
+                        document.getElementById("botonbuscar").style.visibility = "hidden";
+                        document.getElementById("botonfiltrar").style.visibility = "hidden";
+                        alert("Por favor espere a que se terminen de cargar las rutas para buscar un nuevo usuario. Si desea buscar un nuevo usuario antes de que se termine de cargar, actualice la página. Los botones desapareceran mientras tanto.");
+                        alert("Despues de que se cargue la ruta podra revisarla en detalle.")
+                        var topmarkers = [];
+                        for (i=0; i<(markers.length-1); i++) {
+                            topmarkers.push(markers[i]);
+                            var x1 = markers[i][0];
+                            var x2 = markers[i+1][0];
+                            var y1 = markers[i][1];
+                            var y2 = markers[i+1][1];
+
+                            var dx = (x2-x1)/20;  
+                            var dy = (y2-y1)/20;
+
+                            for (k=1; k<21; k++) {
+                                var npunto = [(x1+(dx*k)),(y1+(dy*k)) ];
+                                topmarkers.push(npunto);
+                                }
+                            if (i==markers.length-2) {topmarkers.push(markers[markers.length-1])
+                            }
+                        }
+                        var totalmarkers = topmarkers.length;
+                        var posmarker = 0;
+                                                                        
+                        add();
+
+                        function add() {
+                            polyline.addLatLng(topmarkers[posmarker]);
+                            map2.setView([topmarkers[posmarker][0],topmarkers[posmarker][1]], 10);
+                            posmarker = posmarker + 1;
+                            if (posmarker<totalmarkers) { window.setTimeout(add, 50); }
+                            else {
+                                document.getElementById("botonbuscar").style.visibility="visible";
+                                document.getElementById("botonfiltrar").style.visibility = "visible";
+                            }
+                        }
+                        
+                    }          
+                    else if (document.getElementById("rutas").checked == false) {
+                        map2.eachLayer(function(layer) {
+                          if (layer instanceof L.Polyline) {
+                            map2.removeLayer(layer);
+                            }
+                        }); 
+                        }
+                });
+
+                
+            }
+                    )
+            }
+                         );
+            
+        
+        
+        </script>
+        <h1 id="prueba"></h1>
+        <h2 id="titulofiltrar">Buscar usuario</h2>
+        <select id="listausuarios">
+        </select>
+        <br>
+        <input type="checkbox" value="Mostrar" id="check"><i id="menulateral">Mostrar amigos (en rojo)</i></input>
+        <br>
+        <input type="checkbox" value="Mostrar" id="rutas"><i id="menulateral">Rutas dinámicas</i></input>
+        <br>
+        <button id="botonbuscar">Buscar</button>
+        
+        <script>
+
+        </script>
+    
+        <hr id="filtros"> 
+<!-- --------------------------------- -->   
+    <!-- Implementacion de los scroll seleccionables de meses y años -->
+    <!-- Creacion del scroll con los meses. INICIAL -->
+        <h2 id="titulofiltrar">Filtrar por fecha</h2>
+        <h4 id="desdehasta">Desde:  
+        <select id="MMi" class="mm">
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+        </select>
+    
+    <!-- Creacion del scroll con los años. INICIAL -->
+        <select id="AAAAi" class="aaaa">
+        </select>
+        
+        <script>
+        var scroll = document.getElementById("AAAAi");
+        for (i = 1990; i < 2016; i++) {
+            var option = document.createElement("option");
+            option.text = String(i);
+            scroll.add(option);
+        }
+        </script>
+        
+        <br>
+    <!-- Creacion del scroll con los meses. FINAL -->
+        <h4 id="desdehasta">Hasta:  
+        <select id="MMf" class="mm">
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+        </select>
+    
+    <!-- Creacion del scroll con los años. FINAL -->
+        <select id="AAAAf" class="aaaa">
+        </select>
+        
+        <script>
+        var scroll = document.getElementById("AAAAf");
+        for (i = 1990; i < 2016; i++) {
+            var option = document.createElement("option");
+            option.text = String(i);
+            scroll.add(option);
+        }
+        </script>
+
+        <br>
+<!-- --------------------------------- -->
+            
+        <button onclick="Filtrar()" id="botonfiltrar">Filtrar</button>
+
+        <p id="p1"></p>
+        <p id="p2"></p>
+    
+
+<!-- --------------------------------- -->
+        
+        <div id='map2'></div>
+        <script>
+        L.mapbox.accessToken = 'pk.eyJ1IjoiamF2aWVybG9wZXphIiwiYSI6IkVEMWJBZDgifQ.SdSK59IlDDoxB-8iWeHzaA';
+        var map2 = L.mapbox.map('map2', 'javierlopeza.lh6mh4mn')
+            .setView([16, 21], 1);
+        </script>
+            
+    </body>
+</html>

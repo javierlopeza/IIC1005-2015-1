@@ -1,0 +1,119 @@
+// URL: martinugarte.com/turingmachine/shared/zsqvrapdym
+// Nombre Alumno: Javier Lopez Achondo
+// Input: string
+// Ouput: accepts si la palabra es de la forma (a^n)(b^m) con n<=m<=3n
+
+name: Tarea Chica 2
+init: q0
+accept: qAccept
+
+//El string vacio cumple con las condiciones impuestas.
+q0,_,_,_
+qAccept,_,_,_,-,-,-
+
+//Se revisa que el string sea de la forma (a^n)(b^m).
+q0,a,_,_
+qA,a,_,_,>,-,-
+
+qA,a,_,_
+qA,a,_,_,>,-,-
+
+qA,b,_,_
+qB,b,_,_,>,-,-
+
+qB,b,_,_
+qB,b,_,_,>,-,-
+
+//Se revisa que n<=m<=3n
+qB,_,_,_
+qDelB,_,_,_,<,-,-
+
+qDelB,b,_,_
+qDelB,_,b,_,<,>,-
+
+qDelB,a,_,_
+qMovA,a,_,_,<,-,-
+
+qMovA,a,_,_
+qMovA,a,_,_,<,-,-
+
+//Se verifica si m=n
+qMovA,_,_,_
+qVI,_,_,_,>,<,-
+
+qVI,a,b,_
+qVI,a,b,_,>,<,-
+
+//Efectivamente m=n
+qVI,_,_,_
+qAccept,O,K,!,-,-,-
+
+//No cumple porque n>m
+qVI,a,_,_
+qERROR,U,P,S,-,-,-
+
+qVI,_,b,_
+qReset,_,b,_,<,<,-
+
+qReset,a,b,_
+qReset,a,b,_,<,<,-
+
+qReset,a,_,_
+qReset,a,_,_,<,-,-
+
+qReset,_,b,_
+qReset,_,b,_,-,<,-
+
+qReset,a,b,a
+qReset,a,b,a,<,<,<
+
+qReset,_,b,a
+qReset,_,b,a,-,<,<
+
+qReset,_,_,a
+qReset,_,_,a,-,-,<
+
+qReset,a,_,a
+qReset,a,_,a,<,-,<
+
+qReset,_,_,_
+q3A,_,_,_,>,>,-
+
+q3A,a,b,_
+qTT1,a,b,a,-,-,>
+
+qTT1,a,b,_
+qTT2,a,b,a,-,-,>
+
+qTT2,a,b,_
+q3A,a,b,a,>,-,>
+
+q3A,_,b,_
+qReset2,_,b,_,<,<,<
+
+qReset2,a,_,a
+qReset2,a,_,a,<,-,<
+
+qReset2,_,_,a
+qReset2,_,_,a,-,-,<
+
+qReset2,a,_,_
+qReset2,a,_,_,<,-,-
+
+qReset2,_,_,_
+qVF,_,_,_,-,>,>
+
+qVF,_,b,a
+qVF,_,b,a,-,>,>
+
+//Se cumple que 3n>m
+qVF,_,_,a
+qAccept,O,K,!,-,-,-
+
+//Se cumple que 3n=m
+qVF,_,_,_
+qAccept,O,K,!,-,-,-
+
+//No cumple porque m>3n
+qVF,_,b,_
+qError,U,P,S,-,-,-
